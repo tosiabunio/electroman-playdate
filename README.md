@@ -94,7 +94,13 @@ Game assets are converted from the original DOS data files by the asset
 pipeline in the pyelectroman project (`conversion/` there): sprite sets are
 baked to 1-bit Playdate image tables, levels to JSON, sounds to WAV.
 
-## Rights
+## License
 
-Electro Body / Electro Man © 1992 xLand Games. The repository includes
-game assets converted from the original data files.
+- Code: MIT License (see [LICENSE](LICENSE))
+- Art assets: CC BY-SA 4.0 (from the original game)
+
+## Acknowledgments
+
+- Original game by xLand (1992)
+- Ported from the pyelectroman reference implementation
+- AI development assistance by Claude Code
