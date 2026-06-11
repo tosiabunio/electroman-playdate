@@ -2,10 +2,11 @@
 -- emglobals.py and the level-exit handling from em.py Gameplay.run).
 
 Game = {
-    -- emglobals.py level_names; a level exit loads the next one in order,
-    -- finishing past the last entry completes the game
+    -- the original game's 8 levels; a level exit loads the next one in
+    -- order, finishing the 8th completes the game (emglobals.py
+    -- level_names minus the python port's debug "test" level)
     levelNames = {"elek", "koryt", "mieszk", "magaz",
-                  "fiolet", "10x10", "sluzy", "widok", "test"},
+                  "fiolet", "10x10", "sluzy", "widok"},
     currentLevel = 0,       -- 0-based like the reference
     disks = 0,
     diskPositions = {},     -- collected disks, re-removed on level reset
