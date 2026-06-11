@@ -1,0 +1,11 @@
+# pdc build output
+*.pdx/
+ElectroMan.pdx
+
+# Python
+__pycache__/
+*.pyc
+
+# OS noise
+.DS_Store
+Thumbs.db

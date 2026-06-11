@@ -1,0 +1,6 @@
+name=Electro Man
+author=miasik.net
+description=Electro Man - Playdate port
+bundleID=net.miasik.electroman
+version=0.1
+buildNumber=1
