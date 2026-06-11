@@ -87,9 +87,17 @@ playdate.buttonJustPressed = function() return false end
 playdate.getSystemMenu = function()
     return {addMenuItem = function() end}
 end
+playdate.sound = {sampleplayer = {new = function()
+    return {
+        play = function() end,
+        stop = function() end,
+        isPlaying = function() return false end,
+    }
+end}}
 
 json = {decodeFile = function(p) return py_decode(p) end}
 
+dofile(SRC .. "/sound.lua")
 dofile(SRC .. "/game.lua")
 dofile(SRC .. "/level.lua")
 dofile(SRC .. "/actives.lua")
@@ -120,7 +128,7 @@ function(levelIndex)
             -- walk the debug menu: every entry, adjust both ways (net
             -- zero), no activations
             Debug.show()
-            for _ = 1, 8 do
+            for _ = 1, 9 do
                 Debug.menuAction("right")
                 Debug.menuAction("left")
                 Debug.drawMenu()

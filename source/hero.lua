@@ -307,6 +307,7 @@ stateDeath = function(self, init)
     if self.deathTimer < 10 then
         Actives.putExplosion(self.x - 12 + Actives.random(24),
                              self.y + Actives.random(24))
+        Sound.play("blast")
     elseif self.deathTimer >= 70 then
         self:respawn()
     end
@@ -373,6 +374,10 @@ stateMove = function(self, init)
     local movedX = self:move()
     if movedX ~= 0 then
         self.frame = (self.frame + 1) % #ANIMS[self.anim]
+        -- footstep on frames 2 and 7 (EB_HERO.C:1010,1018)
+        if self.frame == 2 or self.frame == 7 then
+            Sound.play("footstep")
+        end
     else
         -- cannot move farther, play stand animation
         self.anim = self.orientation == 0 and "LSTAND" or "RSTAND"
@@ -418,6 +423,7 @@ end
 
 stateJump = function(self, init)
     if init then
+        Sound.play("jump")
         if self.ctl.left then
             self.moveX = -MOVE_STEP
             self.orientation = 0
@@ -485,6 +491,7 @@ stateLand = function(self, init)
     self.frame = 0
     self.counter = self.counter - 1
     if self.counter == 0 then
+        Sound.play("jumpend")
         return self:newState(stateStand)
     end
 end
@@ -556,9 +563,11 @@ function Hero:handleTouch()
             -- the magazine even at max power
             self.power = math.min(self.power + 1, 5)
             self.ammo = MAGAZINE[self.power]
+            Sound.play("battery")
             Actives.vanish(t)
         elseif touch == TOUCH_TELEPORT then
             if self:groundedDown() then
+                Sound.play("teleport")
                 self:findTeleportTarget(t.x, t.y)
                 self:newState(stateTeleportOut)
             end
@@ -571,12 +580,14 @@ function Hero:handleTouch()
                 Game.checkpoint = {screen = Level.screenNumber,
                                    x = t.x, y = t.y}
                 self.power, self.ammo, self.temp = 0, 0, 0
+                Sound.play("checkp")
                 Actives.activateCheckpoint(t)
             end
         elseif touch == TOUCH_BOMB then
             -- bomb() EB_HERO.C:523-535: explode the bomb sprite at its bbox
             -- center and kill the hero
             if self.state ~= stateDeath then
+                Sound.play("blast")
                 local bx, by, bw, bh = Level.spriteBox(t:sidx())
                 Actives.putExplosion(t.x + bx + bw // 2 - 12,
                                      t.y + by + bh // 2 - 12)
@@ -589,11 +600,13 @@ function Hero:handleTouch()
             Game.disks = Game.disks + 1
             Game.diskPositions[#Game.diskPositions + 1] =
                 {screen = Level.screenNumber, x = t.x, y = t.y}
+            Sound.play("disk")
             Actives.vanish(t)
         elseif touch == TOUCH_EXIT then
             -- exit_level() EB_HERO.C:548-560: needs all 3 disks + DOWN in a
             -- grounded state
             if Game.disks >= 3 and self:groundedDown() then
+                Sound.play("teleport")
                 Game.nextLevelCode = Game.currentLevel + 1
                 Game.exitLevelFlag = true
                 self.teleportTarget = nil
@@ -607,6 +620,7 @@ function Hero:handleTouch()
                 local sidx = t:sidx()
                 local _, _, param = Level.spriteStatus(sidx)
                 if param >= 128 then
+                    Sound.play("teleport")
                     Game.nextLevelCode = param
                     Game.exitLevelFlag = true
                     self.teleportTarget = nil
@@ -615,6 +629,7 @@ function Hero:handleTouch()
                     param = param // 2
                     Level.setSpriteParam(sidx, param)
                     if param == 0 then
+                        Sound.play("teleport")
                         self.teleportTarget = {screen = 0xec,
                                                x = 7 * TILE, y = 1 * TILE}
                         self:newState(stateTeleportOut)
@@ -641,6 +656,8 @@ function Hero:respawn()
     self:stand(cp.x + TILE // 2, cp.y + TILE)
     self.toGround = self:checkGround()
     self:switchState(stateStand)
+    -- level-entry sample (hero_enter_level_proc EB_HERO.C:681)
+    Sound.play("area")
 end
 
 -- Place the hero's feet (bbox bottom-center) at (px, py) — emhero.py stand().
@@ -703,6 +720,7 @@ function Hero:fireWeapon()
     self.temp = self.temp + heat
     self.cooldown = 4
     self.ammo = self.ammo - 1
+    Sound.play("shoot" .. self.power)
     local s = SHOTS[self.power]
     if self.orientation == 1 then
         Actives.fireHeroShot(self.power, true,

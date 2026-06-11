@@ -23,8 +23,9 @@ Ported and playable:
 - Shootable/destroyable scenery with broken-sprite debris
 - Level sequencing across all levels, disks, exits, secret/special items
 - HUD: temperature and power LED bars, disk display
+- Sound effects, with the original driver's 8-voice priority/preemption
 
-Not ported yet: sound, the main menu, save/load.
+Not ported yet: the main menu, save/load.
 
 ## Controls
 
@@ -54,9 +55,11 @@ Debug facilities are gated by the `DEBUG` flag at the top of
   opens a modal overlay — d-pad navigates, left/right adjusts, A activates,
   B closes; the game is frozen while it is open. Entries: level jump,
   screen ±1/±16, fly mode (movement FSM suspended, one-tile d-pad nudges),
-  collision-box overlay, weapon select, kill hero, give 3 disks.
+  collision-box overlay, weapon select, sound toggle, kill hero, give
+  3 disks.
 - **Simulator keyboard**: `1`–`9` level jump, `c` collision boxes, `g` fly
-  mode, `k` kill, `f` 3 disks, `[` / `]` screen ±1, `-` / `=` screen ±16.
+  mode, `k` kill, `f` 3 disks, `m` sound toggle, `[` / `]` screen ±1,
+  `-` / `=` screen ±16.
 
 ## Testing
 
@@ -80,11 +83,12 @@ source/
   actives.lua     all active entities (animations, hostiles, projectiles)
   hero.lua        the player: FSM, physics, touch handling, weapons
   hud.lua         LED bars and disk display
+  sound.lua       sound effects with the original priority model
   debugmenu.lua   debug overlay menu and simulator hotkeys
   images/         1-bit sprite-set image tables (baked from original art)
   levels/         level maps (.ebl JSON, converted from original .ggc)
   sprites/        per-set sprite metadata (.ebs JSON)
-  sounds/         converted sound effects (not yet used)
+  sounds/         converted sound effects
   fonts/          small debug font (from the Playdate SDK resources)
 tools/
   headless_smoke.py   headless fuzz-test harness

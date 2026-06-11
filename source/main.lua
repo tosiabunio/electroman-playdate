@@ -3,6 +3,7 @@
 -- active entities, ported from python/em.py + emhero.py + emgame.py.
 
 import "CoreLibs/graphics"
+import "sound"
 import "game"
 import "level"
 import "actives"

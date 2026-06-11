@@ -88,6 +88,14 @@ local entries = {
     },
     {
         label = function()
+            return "sound [" .. (Sound.enabled and "on" or "off") .. "]"
+        end,
+        adjust = function()
+            Sound.toggle()
+        end,
+    },
+    {
+        label = function()
             return "kill hero"
         end,
         activate = function()
@@ -188,6 +196,7 @@ local keys = {
     ["g"] = function() Hero.debugFly = not Hero.debugFly end,
     ["k"] = function() Hero:debugKill() end,
     ["f"] = function() Game.disks = 3 end,
+    ["m"] = function() Sound.toggle() end,   -- F7 in the reference
     ["["] = function() Level.changeScreen((Level.screenNumber - 1) % 256) end,
     ["]"] = function() Level.changeScreen((Level.screenNumber + 1) % 256) end,
     ["-"] = function() Level.changeScreen((Level.screenNumber - 16) % 256) end,

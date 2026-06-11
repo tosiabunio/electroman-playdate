@@ -374,6 +374,7 @@ updates.rocketup = function(e)
     local bx, by, bw, bh = Actives.entityBox(e)
     if blocked(e.x + bx, e.y - e.speed + by, bw, bh, 0, -1) then
         Actives.putExplosion(e.x, e.y)
+        Sound.play("blast")
         Actives.vanish(e)
     elseif e.y < -TILE then
         Actives.vanish(e)
@@ -397,6 +398,7 @@ updates.rocketdown = function(e)
     local bx, by, bw, bh = Actives.entityBox(e)
     if blocked(e.x + bx, e.y + e.speed + by, bw, bh, 0, 1) then
         Actives.putExplosion(e.x, e.y)
+        Sound.play("blast")
         Actives.vanish(e)
     elseif e.y > MAX_Y then
         Actives.vanish(e)
@@ -447,6 +449,7 @@ updates.cannon = function(e)
     end
     Actives.spawnEnemyShot(e.projSidx, nil, px, py,
                            e.dx * e.speed, e.dy * e.speed)
+    Sound.play("laser")
     e.fireTimer = e.interval + random(e.interval)
 end
 
@@ -572,6 +575,14 @@ local function enemyPatrol(e)
             e.shootTimer = e.shootTimer - 1
         end
         if e.shootTimer == 0 and e.frame == 0 then
+            -- warning sample: platform creatures pick by patrol speed
+            -- (EB_ENEM.C:826-829, native threshold 5), flying ones always
+            -- play warning2 (EB_ENEM.C:993)
+            if not e.flyer and math.abs(e.xStep) < 5 then
+                Sound.play("warning")
+            else
+                Sound.play("warning2")
+            end
             e.animDelay = 16
             e.shootTimer = 32 + random(64)
             e.state = "shoot"
@@ -609,17 +620,21 @@ local function enemyShoot(e)
     local _, _, speed = extStatus(enemStatus, shotSidx)
     local bx, by, bw, bh = Actives.entityBox(e)
     if e.flyer then
-        -- flying creatures shoot straight down, just below the bbox
+        -- flying creatures shoot straight down, just below the bbox; C
+        -- plays the cannon's laser sample here (EB_ENEM.C:954)
         Actives.spawnEnemyShot(shotSidx, enemStatus,
                                e.x, e.y + by + bh + 1, 0, speed)
+        Sound.play("laser")
     elseif e.xStep < 0 then
         -- one tile left of the bbox (NEW_X = XB - 24, EB_ENEM.C:784)
         Actives.spawnEnemyShot(shotSidx, enemStatus,
                                e.x + bx - TILE, e.y, -speed, 0)
+        Sound.play("shoot")
     else
         -- just right of the bbox (NEW_X = XE + 1, EB_ENEM.C:795)
         Actives.spawnEnemyShot(shotSidx, enemStatus,
                                e.x + bx + bw + 1, e.y, speed, 0)
+        Sound.play("shoot")
     end
     e.state = "patrol"
 end
@@ -833,6 +848,7 @@ local function shootObject(e)
         Actives.putExplosion(cx, cy)
         Actives.vanish(e)
     end
+    Sound.play("blast")
 end
 
 updates.heroshot = function(e)
@@ -888,8 +904,11 @@ updates.heroshot = function(e)
                     and e.y + by < t.y + tby + tbh
                     and e.y + by + bh > t.y + tby
             if hit and t.kind == "enemy" then
+                -- xplode() itself is silent; blast is the hit sample
+                -- (emhero.py hit_enemy)
                 killEnemy(t)
                 Actives.putExplosion(e.x, e.y)
+                Sound.play("blast")
                 hitEnemy = true
             elseif hit and not t.ebs and (entityFlags(t) & 0x20) ~= 0 then
                 -- level-set entity whose CURRENT frame is shootable

@@ -31,6 +31,8 @@ function Game.loadLevel(index)
     Hero.power, Hero.ammo, Hero.temp = 0, 0, 0
     Level.changeScreen(screen)
     Hero:spawn(tileX, tileY)
+    -- level-entry sample (hero_enter_level_proc EB_HERO.C:681)
+    Sound.play("area")
 end
 
 -- Level-exit transition (em.py run, EB.C:263-276). Deviation from the
