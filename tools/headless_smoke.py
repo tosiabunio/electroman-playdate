@@ -101,6 +101,14 @@ playdate.sound = {sampleplayer = {new = function()
         stop = function() end,
         isPlaying = function() return false end,
     }
+end},
+fileplayer = {new = function()
+    return {
+        play = function() end,
+        stop = function() end,
+        isPlaying = function() return false end,
+        getOffset = function() return 0 end,
+    }
 end}}
 
 json = {decodeFile = function(p) return py_decode(p) end}
@@ -113,6 +121,8 @@ dofile(SRC .. "/hero.lua")
 dofile(SRC .. "/hud.lua")
 dofile(SRC .. "/letters.lua")
 dofile(SRC .. "/menu.lua")
+dofile(SRC .. "/music.lua")
+dofile(SRC .. "/presentation.lua")
 dofile(SRC .. "/debugmenu.lua")
 
 Hero.imageTable = gfx.imagetable.new("images/hero")
@@ -127,7 +137,7 @@ function(levelIndex)
     local name = Level.name
     local screens, frames = 0, 0
     for n = 0, 255 do
-        if Game.currentLevel ~= levelIndex then
+        if Game.state ~= "play" or Game.currentLevel ~= levelIndex then
             break   -- fuzz input hit a level exit; this level is done
         end
         local list = Level.actives[n + 1]
@@ -158,7 +168,11 @@ function(levelIndex)
                 Actives.update(Level.active)
                 Hero:update()
                 Game.checkLevelExit()
-                if Game.currentLevel ~= levelIndex then
+                -- a level exit switched to the level-completed (or
+                -- congratulations) presentation: gameplay updates stop,
+                -- like the real loop's Game.state dispatch
+                if Game.state ~= "play"
+                        or Game.currentLevel ~= levelIndex then
                     break
                 end
                 Actives.flushPending()
@@ -217,6 +231,17 @@ function()
         assert(not (e:getTouch() == 5 and e.x == disk.x and e.y == disk.y),
                "restored disk should be stripped from the map")
     end
+    -- presentation screens: title (with the song-pos image flip),
+    -- level-completed (printText message incl. digits), congratulations
+    Presentation.title()
+    assert(Game.state == "presentation", "title should enter presentation")
+    assert(Music.songPos() == 0, "songPos should start at 0")
+    Presentation.draw()
+    Presentation.levelCompleted(3, 3)
+    Presentation.draw()
+    Presentation.congratulations()
+    Presentation.draw()
+    Music.stop()
     return true
 end
 """)

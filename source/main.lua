@@ -11,6 +11,8 @@ import "hero"
 import "hud"
 import "letters"
 import "menu"
+import "music"
+import "presentation"
 import "debugmenu"
 
 local pd <const> = playdate
@@ -36,42 +38,53 @@ end
 -- "quit (y or n)" confirmation is skipped
 pd.getSystemMenu():addMenuItem("main menu", function()
     if Game.state == "play" then
+        Music.stop()
         Game.state = "menu"
         Menu.open()
     end
 end)
--- boot into the main menu (em.py fast_main; milestone 7 will put the
--- title screen in front of it)
-Menu.open()
+-- the R-key restart (EB.H:68, em.py on_k_r) as a pause-menu item; like
+-- "main menu", the system menu is deliberate enough that the original's
+-- "restart level? (y or n)" confirmation is skipped. Matches EB.C:1087:
+-- a full fresh reload (start position, disks, weapon all reset).
+pd.getSystemMenu():addMenuItem("restart level", function()
+    if Game.state == "play" then
+        Game.loadLevel(Game.currentLevel)
+    end
+end)
+-- boot into the title page (em.py fast_main: title -> menu -> gameplay)
+Presentation.title()
 
 function pd.update()
+    if Game.state == "presentation" then
+        gfx.clear(gfx.kColorBlack)
+        Presentation.draw()
+        if pd.buttonJustPressed(pd.kButtonA)
+                or pd.buttonJustPressed(pd.kButtonB) then
+            Music.stop()
+            local mode = Presentation.mode
+            if mode == "title" then
+                Game.state = "menu"
+                Menu.open()
+            elseif mode == "levelcomplete" then
+                Game.loadLevel(Presentation.nextLevel)
+            else
+                -- congratulations -> back to the title page (em.py
+                -- fast_main loops to the top after game completion)
+                Presentation.title()
+            end
+        end
+        return
+    end
+
     if Game.state == "menu" then
         local result = Menu.update()
         gfx.clear(gfx.kColorBlack)
         Menu.draw()
         if result == "new_game" then
-            Game.completed = false
             Game.loadLevel(0)
         elseif result == "continue" then
-            Game.completed = false
             Game.continueGame()
-        end
-        return
-    end
-
-    if Game.completed then
-        -- placeholder until the milestone-7 congratulations screen; any
-        -- button returns to the menu (em.py fast_main)
-        gfx.clear(gfx.kColorBlack)
-        gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        gfx.drawTextAligned("GAME COMPLETED", 200, 108, kTextAlignment.center)
-        gfx.setImageDrawMode(gfx.kDrawModeCopy)
-        Letters.drawCentered("press fire", 144)
-        if pd.buttonJustPressed(pd.kButtonA)
-                or pd.buttonJustPressed(pd.kButtonB) then
-            Game.completed = false
-            Game.state = "menu"
-            Menu.open()
         end
         return
     end

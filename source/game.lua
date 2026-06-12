@@ -14,10 +14,9 @@ Game = {
     exitLevelFlag = false,
     nextLevelCode = 0,
     levelExitReady = false, -- fade-out finished, switch level now
-    completed = false,
     counter = 0,            -- global frame counter (gl.counter), HUD blinking
     killingFloor = false,   -- armed killing-floor fall death (gl.killing_floor)
-    state = "menu",         -- "menu" | "play" (em.py fast_main flow)
+    state = "menu",         -- "menu" | "play" | "presentation" (em.py fast_main)
 }
 
 -- em.py load_level: load by index, reset per-level state (EB.C:1461-1464),
@@ -133,8 +132,12 @@ function Game.checkLevelExit()
     Game.levelExitReady = false
     Game.exitLevelFlag = false
     if Game.nextLevelCode < #Game.levelNames then
-        Game.loadLevel(Game.nextLevelCode)
+        -- "well done" screen between levels (EB.C:2025-2026); the next
+        -- level loads when fire is pressed (em.py run)
+        Presentation.levelCompleted(Game.currentLevel + 1,
+                                    Game.nextLevelCode)
     else
-        Game.completed = true
+        -- congratulations screen (EB.C:2029, em.py fast_main)
+        Presentation.congratulations()
     end
 end

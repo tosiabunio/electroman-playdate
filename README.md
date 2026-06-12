@@ -27,9 +27,14 @@ Ported and playable:
 - Main menu (continue / new game) rendered with the original letter
   sprites; auto-save on checkpoint activation, persisted with
   `playdate.datastore`
+- Pattern music and the presentation screens: the title page (with the
+  music-synced image flip), the level-completed screen, and the
+  congratulations screen
 
-Not ported yet: pattern music, the presentation screens (title,
-level-completed, congratulations).
+With that, the game is functionally complete. (Two DOS-isms are
+deliberately dropped: the "exit to dos?" prompt and the loading
+animation; the quit/restart confirmations are replaced by system-menu
+items.)
 
 The 1-bit graphics conversion (automated per-sprite thresholding/
 dithering of the original 256-color art) is not final — a manual art
@@ -45,10 +50,12 @@ in place.
 | d-pad down | enter teleport / use exit / use special item |
 | B | fire |
 
-In the main menu: d-pad up/down selects, A or B confirms. The system
-(pause) menu's *main menu* item returns to the menu mid-game (progress
-since the last activated checkpoint is lost, like the original's
-quit-to-menu).
+On the title and presentation screens, any button is fire/advance. In
+the main menu: d-pad up/down selects, A or B confirms. The system
+(pause) menu has two in-game items: *main menu* returns to the menu
+(progress since the last activated checkpoint is lost, like the
+original's quit-to-menu) and *restart level* reloads the current level
+from scratch (the original's R key).
 
 ## Building
 
@@ -114,11 +121,14 @@ source/
   sound.lua       sound effects with the original priority model
   letters.lua     letter-sprite text rendering (the original print())
   menu.lua        main menu (continue / new game)
+  music.lua       pattern music playback (pre-rendered songs + boundary table)
+  presentation.lua  title / level-completed / congratulations screens
   debugmenu.lua   debug overlay menu and simulator hotkeys
   images/         1-bit sprite-set image tables (baked from original art)
   levels/         level maps (.ebl JSON, converted from original .ggc)
   sprites/        per-set sprite metadata (.ebs JSON)
   sounds/         converted sound effects
+  music/          pre-rendered pattern songs + pattern-boundary table
   fonts/          small debug font (from the Playdate SDK resources)
 tools/
   headless_smoke.py   headless fuzz-test harness
@@ -126,7 +136,12 @@ tools/
 
 Game assets are converted from the original DOS data files by the asset
 pipeline in the pyelectroman project (`conversion/` there): sprite sets are
-baked to 1-bit Playdate image tables, levels to JSON, sounds to WAV.
+baked to 1-bit Playdate image tables, levels to JSON, sounds to WAV, the
+320x200 presentation screens to dithered 1-bit PNGs, and the pattern songs
+are pre-rendered into single loopable WAVs with a pattern-boundary table
+(the original chains the patterns at runtime; pre-rendering is gapless by
+construction and the table lets the title screen sync its image flip to
+the music position, like the original).
 
 ## License
 
