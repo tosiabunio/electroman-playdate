@@ -95,17 +95,18 @@ function pd.update()
         -- debug menu eats the input
         Debug.update()
     else
-        -- controller (emgame.py Controller); A doubles as jump for comfort,
-        -- B shoots. Fly mode nudges one tile per d-pad PRESS (Shift+arrows).
+        -- controller (emgame.py Controller); A shoots, B doubles as jump
+        -- for comfort. Fly mode nudges one tile per d-pad PRESS
+        -- (Shift+arrows).
         local ctl = Hero.ctl
         local fly = DEBUG and Hero.debugFly
         local pressed = fly and pd.buttonJustPressed or pd.buttonIsPressed
         ctl.left = pressed(pd.kButtonLeft)
         ctl.right = pressed(pd.kButtonRight)
         ctl.up = pressed(pd.kButtonUp)
-            or (not fly and pd.buttonIsPressed(pd.kButtonA))
+            or (not fly and pd.buttonIsPressed(pd.kButtonB))
         ctl.down = pressed(pd.kButtonDown)
-        ctl.fire = pd.buttonIsPressed(pd.kButtonB)
+        ctl.fire = pd.buttonIsPressed(pd.kButtonA)
 
         -- update order matches em.py loop_run: current screen's actives,
         -- then the player (who may switch screens; the new screen's actives

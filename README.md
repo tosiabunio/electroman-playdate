@@ -46,9 +46,9 @@ in place.
 | Input | Action |
 |---|---|
 | d-pad left/right | walk |
-| d-pad up / A | jump |
+| d-pad up / B | jump |
 | d-pad down | enter teleport / use exit / use special item |
-| B | fire |
+| A | fire |
 
 On the title and presentation screens, any button is fire/advance. In
 the main menu: d-pad up/down selects, A or B confirms. The system
