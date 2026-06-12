@@ -3,7 +3,7 @@
 A port of the 1992 DOS platformer **Electro Body / Electro Man** (xLand
 Games) to the [Panic Playdate](https://play.date) console.
 
-The game logic is ported line-by-line from **pyelectroman**, a faithful
+The game logic is ported line-by-line from [**pyelectroman**](https://github.com/tosiabunio/pyelectroman), a faithful
 pygame reimplementation of the original DOS C source, which serves as the
 reference implementation. All gameplay values run at the game's native
 scale and the original Borland C 3.1 RNG is reproduced exactly, so entity
