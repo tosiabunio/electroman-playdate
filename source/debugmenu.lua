@@ -204,6 +204,9 @@ local keys = {
 }
 
 function Debug.key(key)
+    if Game.state ~= "play" then
+        return  -- no level loaded while the main menu is up
+    end
     local n = tonumber(key)
     if n and n >= 1 and n <= #Game.levelNames then
         Game.loadLevel(n - 1)
@@ -217,7 +220,9 @@ end
 
 function Debug.init()
     pd.getSystemMenu():addMenuItem("debug menu", function()
-        Debug.show()
+        if Game.state == "play" then
+            Debug.show()
+        end
     end)
     function pd.keyPressed(key)
         Debug.key(key)

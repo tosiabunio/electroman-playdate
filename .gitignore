@@ -9,3 +9,6 @@ __pycache__/
 # OS noise
 .DS_Store
 Thumbs.db
+
+# Playdate Simulator crash-handler cache
+.sentry-native/

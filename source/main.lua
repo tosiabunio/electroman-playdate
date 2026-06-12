@@ -9,6 +9,8 @@ import "level"
 import "actives"
 import "hero"
 import "hud"
+import "letters"
+import "menu"
 import "debugmenu"
 
 local pd <const> = playdate
@@ -29,14 +31,48 @@ assert(debugFont, "failed to load debug font")
 if DEBUG then
     Debug.init()
 end
-Game.loadLevel(0)
+-- the system menu replaces the reference's Esc quit-to-menu path (em.py
+-- on_k_escape); opening it is already a deliberate act, so the original's
+-- "quit (y or n)" confirmation is skipped
+pd.getSystemMenu():addMenuItem("main menu", function()
+    if Game.state == "play" then
+        Game.state = "menu"
+        Menu.open()
+    end
+end)
+-- boot into the main menu (em.py fast_main; milestone 7 will put the
+-- title screen in front of it)
+Menu.open()
 
 function pd.update()
+    if Game.state == "menu" then
+        local result = Menu.update()
+        gfx.clear(gfx.kColorBlack)
+        Menu.draw()
+        if result == "new_game" then
+            Game.completed = false
+            Game.loadLevel(0)
+        elseif result == "continue" then
+            Game.completed = false
+            Game.continueGame()
+        end
+        return
+    end
+
     if Game.completed then
+        -- placeholder until the milestone-7 congratulations screen; any
+        -- button returns to the menu (em.py fast_main)
         gfx.clear(gfx.kColorBlack)
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        gfx.drawTextAligned("GAME COMPLETED", 200, 116, kTextAlignment.center)
+        gfx.drawTextAligned("GAME COMPLETED", 200, 108, kTextAlignment.center)
         gfx.setImageDrawMode(gfx.kDrawModeCopy)
+        Letters.drawCentered("press fire", 144)
+        if pd.buttonJustPressed(pd.kButtonA)
+                or pd.buttonJustPressed(pd.kButtonB) then
+            Game.completed = false
+            Game.state = "menu"
+            Menu.open()
+        end
         return
     end
 

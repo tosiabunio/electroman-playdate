@@ -24,9 +24,12 @@ Ported and playable:
 - Level sequencing across all levels, disks, exits, secret/special items
 - HUD: temperature and power LED bars, disk display
 - Sound effects, with the original driver's 8-voice priority/preemption
+- Main menu (continue / new game) rendered with the original letter
+  sprites; auto-save on checkpoint activation, persisted with
+  `playdate.datastore`
 
 Not ported yet: pattern music, the presentation screens (title,
-level-completed, congratulations), the main menu, save/load.
+level-completed, congratulations).
 
 ## Controls
 
@@ -36,6 +39,11 @@ level-completed, congratulations), the main menu, save/load.
 | d-pad up / A | jump |
 | d-pad down | enter teleport / use exit / use special item |
 | B | fire |
+
+In the main menu: d-pad up/down selects, A or B confirms. The system
+(pause) menu's *main menu* item returns to the menu mid-game (progress
+since the last activated checkpoint is lost, like the original's
+quit-to-menu).
 
 ## Building
 
@@ -85,6 +93,8 @@ source/
   hero.lua        the player: FSM, physics, touch handling, weapons
   hud.lua         LED bars and disk display
   sound.lua       sound effects with the original priority model
+  letters.lua     letter-sprite text rendering (the original print())
+  menu.lua        main menu (continue / new game)
   debugmenu.lua   debug overlay menu and simulator hotkeys
   images/         1-bit sprite-set image tables (baked from original art)
   levels/         level maps (.ebl JSON, converted from original .ggc)

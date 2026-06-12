@@ -57,6 +57,7 @@ lua.execute(r"""
 local img = {}
 img.__index = img
 function img.draw() end
+function img.drawFaded() end
 
 playdate = {graphics = {}}
 local gfx = playdate.graphics
@@ -65,7 +66,8 @@ gfx.kColorWhite = 1
 gfx.kColorXOR = 2
 gfx.kDrawModeCopy = 0
 gfx.kDrawModeFillWhite = 1
-gfx.image = {new = function() return setmetatable({}, img) end}
+gfx.image = {new = function() return setmetatable({}, img) end,
+             kDitherTypeBayer4x4 = 0}
 gfx.imagetable = {new = function(path)
     return {getImage = function(self, i)
         assert(i >= 1, "imagetable index < 1: " .. tostring(i))
@@ -87,6 +89,12 @@ playdate.buttonJustPressed = function() return false end
 playdate.getSystemMenu = function()
     return {addMenuItem = function() end}
 end
+-- in-memory datastore (save/load round-trips within one run)
+local datastore_files = {}
+playdate.datastore = {
+    write = function(t, name) datastore_files[name or "data"] = t end,
+    read = function(name) return datastore_files[name or "data"] end,
+}
 playdate.sound = {sampleplayer = {new = function()
     return {
         play = function() end,
@@ -103,6 +111,8 @@ dofile(SRC .. "/level.lua")
 dofile(SRC .. "/actives.lua")
 dofile(SRC .. "/hero.lua")
 dofile(SRC .. "/hud.lua")
+dofile(SRC .. "/letters.lua")
+dofile(SRC .. "/menu.lua")
 dofile(SRC .. "/debugmenu.lua")
 
 Hero.imageTable = gfx.imagetable.new("images/hero")
@@ -166,9 +176,40 @@ function(levelIndex)
 end
 """)
 
+menu_test = lua.eval(r"""
+function()
+    -- fresh boot: no save, the menu must land on NEW GAME
+    Game.state = "menu"
+    Menu.open()
+    Menu.draw()
+    Menu.action("up"); Menu.action("down"); Menu.draw()
+    assert(Menu.action("select") == "new_game",
+           "no-save menu should select new game")
+    -- play to the start checkpoint and auto-save there
+    Game.loadLevel(0)
+    Game.save()
+    assert(Game.loadSave(), "save did not round-trip")
+    -- with a save, the menu offers CONTINUE and it restores the game
+    Menu.open()
+    Menu.draw()
+    assert(Menu.action("select") == "continue",
+           "with a save the menu should offer continue")
+    assert(Game.continueGame(), "continueGame failed")
+    assert(Game.state == "play", "continue should enter gameplay")
+    return true
+end
+""")
+
+
 def main():
     names = lua.eval("#Game.levelNames")
     failures = 0
+    try:
+        menu_test()
+        print("menu/save     OK")
+    except Exception as exc:
+        failures += 1
+        print("menu/save FAILED: %s" % exc)
     for i in range(names):
         try:
             name, screens, frames = run(i)

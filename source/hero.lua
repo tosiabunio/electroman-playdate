@@ -582,6 +582,8 @@ function Hero:handleTouch()
                 self.power, self.ammo, self.temp = 0, 0, 0
                 Sound.play("checkp")
                 Actives.activateCheckpoint(t)
+                -- auto-save on activation (emhero.py handle_touch:556)
+                Game.save()
             end
         elseif touch == TOUCH_BOMB then
             -- bomb() EB_HERO.C:523-535: explode the bomb sprite at its bbox
