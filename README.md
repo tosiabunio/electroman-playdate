@@ -25,7 +25,8 @@ Ported and playable:
 - HUD: temperature and power LED bars, disk display
 - Sound effects, with the original driver's 8-voice priority/preemption
 
-Not ported yet: the main menu, save/load.
+Not ported yet: pattern music, the presentation screens (title,
+level-completed, congratulations), the main menu, save/load.
 
 ## Controls
 
