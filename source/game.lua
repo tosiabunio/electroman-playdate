@@ -95,11 +95,13 @@ function Game.loadSave()
 end
 
 -- Continue from the save. Matches the Python flow (em.py fast_main:
--- load_saved_game + gameplay.start): the level loads fresh and the hero
--- spawns at the saved checkpoint. NOTE the reference does NOT restore
--- disks/weapon on continue — load_level resets them right after
--- apply_to_game set them (EB.C:1461/1389); the saved disks/power fields
--- are written for save-format parity only.
+-- load_saved_game + gameplay.start + load_level's pending_disk_restore):
+-- the level loads fresh, the hero spawns at the saved checkpoint, and the
+-- collected disks are restored and stripped from the fresh map exactly
+-- like death-respawn. Weapon power is deliberately NOT restored — death
+-- resets it too (EB.C:1389), so restoring it on continue would make
+-- quitting more generous than dying; the saved power field is
+-- vestigial-by-design (kept in the format and checksummed, never read).
 function Game.continueGame()
     local sav = Game.loadSave()
     if not sav then
@@ -108,6 +110,12 @@ function Game.continueGame()
     Game.loadLevel(sav.level)
     Game.checkpoint = {screen = sav.screen,
                        x = sav.position_x, y = sav.position_y}
+    Game.disks = sav.disks
+    Game.diskPositions = {}
+    for i, p in ipairs(sav.disk_positions) do
+        Game.diskPositions[i] = {screen = p[1], x = p[2], y = p[3]}
+    end
+    Level.removeCollectedDisks(Game.diskPositions)
     Level.changeScreen(sav.screen)
     Hero:spawn(sav.position_x // TILE, sav.position_y // TILE)
     return true

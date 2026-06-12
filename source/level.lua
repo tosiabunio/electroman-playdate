@@ -112,6 +112,13 @@ end
 -- restores vanished batteries/bombs — then re-remove the collected disks.
 function Level.resetLevel(diskPositions)
     Level.buildActives()
+    Level.removeCollectedDisks(diskPositions)
+end
+
+-- Strip already-collected disks from the (freshly built) screens — C's
+-- MAP_REMOVE loop (EB.C:1391-1395, emgame.py remove_collected_disks).
+-- Shared by death respawn and continue-from-save.
+function Level.removeCollectedDisks(diskPositions)
     for _, d in ipairs(diskPositions) do
         local list = Level.actives[d.screen + 1]
         for i, e in ipairs(list) do

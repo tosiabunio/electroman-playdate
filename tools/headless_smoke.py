@@ -185,17 +185,38 @@ function()
     Menu.action("up"); Menu.action("down"); Menu.draw()
     assert(Menu.action("select") == "new_game",
            "no-save menu should select new game")
-    -- play to the start checkpoint and auto-save there
+    -- play to the start checkpoint, collect a real disk, auto-save
     Game.loadLevel(0)
+    local diskScreen, disk
+    for n = 0, 255 do
+        for _, e in ipairs(Level.actives[n + 1] or {}) do
+            if e:getTouch() == 5 then   -- TOUCH_FLOPPY
+                diskScreen, disk = n, e
+                break
+            end
+        end
+        if disk then break end
+    end
+    assert(disk, "no floppy found on level 0")
+    Game.disks = 1
+    Game.diskPositions = {{screen = diskScreen, x = disk.x, y = disk.y}}
     Game.save()
     assert(Game.loadSave(), "save did not round-trip")
-    -- with a save, the menu offers CONTINUE and it restores the game
+    -- with a save, the menu offers CONTINUE and it restores the game:
+    -- spawn at the checkpoint, disks restored and stripped from the map,
+    -- weapon power NOT restored (vestigial-by-design, EB.C:1389)
     Menu.open()
     Menu.draw()
     assert(Menu.action("select") == "continue",
            "with a save the menu should offer continue")
     assert(Game.continueGame(), "continueGame failed")
     assert(Game.state == "play", "continue should enter gameplay")
+    assert(Game.disks == 1, "continue should restore collected disks")
+    assert(Hero.power == 0, "continue must not restore weapon power")
+    for _, e in ipairs(Level.actives[diskScreen + 1]) do
+        assert(not (e:getTouch() == 5 and e.x == disk.x and e.y == disk.y),
+               "restored disk should be stripped from the map")
+    end
     return true
 end
 """)
