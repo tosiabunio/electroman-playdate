@@ -31,6 +31,11 @@ Ported and playable:
 Not ported yet: pattern music, the presentation screens (title,
 level-completed, congratulations).
 
+The 1-bit graphics conversion (automated per-sprite thresholding/
+dithering of the original 256-color art) is not final — a manual art
+pass is planned as the last step of the port, once all functionality is
+in place.
+
 ## Controls
 
 | Input | Action |
@@ -54,6 +59,20 @@ Requires the [Playdate SDK](https://play.date/dev/) with
 & "$env:PLAYDATE_SDK_PATH\bin\pdc.exe" <absolute path>\source <absolute path>\ElectroMan.pdx
 & "$env:PLAYDATE_SDK_PATH\bin\PlaydateSimulator.exe" <absolute path>\ElectroMan.pdx
 ```
+
+## Running on a Playdate
+
+Two ways to sideload the built `ElectroMan.pdx` onto the console:
+
+- **Via the simulator (USB)**: connect the Playdate over USB, unlock it,
+  open the game in the Playdate Simulator and choose
+  *Device → Upload Game to Device*. The game installs and launches on
+  the console.
+- **Via play.date (over the air)**: zip the `ElectroMan.pdx` folder and
+  upload it at <https://play.date/account/sideload>. On the device, go
+  to *Settings → Games* and the game appears in the list with a cloud
+  icon — select it to download and install. (Sideloaded games require
+  the Playdate to be registered to the same play.date account.)
 
 ## Debug menu
 
