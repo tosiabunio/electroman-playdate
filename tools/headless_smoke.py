@@ -100,6 +100,7 @@ playdate.sound = {sampleplayer = {new = function()
         play = function() end,
         stop = function() end,
         isPlaying = function() return false end,
+        setVolume = function() end,
     }
 end},
 fileplayer = {new = function()
@@ -108,6 +109,7 @@ fileplayer = {new = function()
         stop = function() end,
         isPlaying = function() return false end,
         getOffset = function() return 0 end,
+        setVolume = function() end,
     }
 end}}
 

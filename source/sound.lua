@@ -39,10 +39,18 @@ local DEFS <const> = {
 
 local CHANNELS <const> = 8
 
+-- The converted samples are normalized near digital full-scale (the
+-- .u8 -> WAV conversion keeps the original 8-bit range), so at the
+-- default volume 1.0 every effect blasts at 0 dBFS and overlapping
+-- voices clip. Per-voice attenuation keeps the mix comfortable and
+-- leaves headroom for the 8-voice stack.
+local VOLUME <const> = 0.4
+
 local players = {}
 for name, def in pairs(DEFS) do
     local sp = snd.sampleplayer.new("sounds/" .. def[1])
     if sp then
+        sp:setVolume(VOLUME)
         players[name] = {sp = sp, prio = def[2]}
     end
 end

@@ -17,6 +17,10 @@ local player = nil
 local ends = nil    -- current song's cumulative pattern ends, in samples
 local total = 0
 
+-- the baked songs are near full-scale like the SFX (see sound.lua) —
+-- attenuate to a comfortable level
+local VOLUME <const> = 0.4
+
 function Music.play(name)
     Music.stop()
     if not Sound.enabled then
@@ -26,6 +30,7 @@ function Music.play(name)
     total = ends[#ends]
     player = snd.fileplayer.new("music/" .. name)
     if player then
+        player:setVolume(VOLUME)
         player:play(0)   -- loop endlessly
     end
 end
