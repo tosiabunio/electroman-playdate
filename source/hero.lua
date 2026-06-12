@@ -791,6 +791,10 @@ function Hero:update()
 end
 
 function Hero:display()
+    -- not displayed during the death sequence (emhero.py display())
+    if self.state == stateDeath then
+        return
+    end
     local pair = ANIMS[self.anim][self.frame + 1]
     self.imageTable:getImage(pair[1] + 1):draw(OFFX + self.x, OFFY + self.y)
     self.imageTable:getImage(pair[2] + 1):draw(OFFX + self.x, OFFY + self.y + TILE)
