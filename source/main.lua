@@ -55,6 +55,15 @@ end)
 -- boot into the title page (em.py fast_main: title -> menu -> gameplay)
 Presentation.title()
 
+-- A/B pressed to accept a menu or presentation screen stay swallowed until
+-- released, so the accept press doesn't fire (A) or jump (B) on the first
+-- gameplay frames
+local swallowA, swallowB = false, false
+local function swallowButtons()
+    swallowA = true
+    swallowB = true
+end
+
 function pd.update()
     if Game.state == "presentation" then
         gfx.clear(gfx.kColorBlack)
@@ -68,6 +77,7 @@ function pd.update()
                 Menu.open()
             elseif mode == "levelcomplete" then
                 Game.loadLevel(Presentation.nextLevel)
+                swallowButtons()
             else
                 -- congratulations -> back to the title page (em.py
                 -- fast_main loops to the top after game completion)
@@ -83,8 +93,10 @@ function pd.update()
         Menu.draw()
         if result == "new_game" then
             Game.loadLevel(0)
+            swallowButtons()
         elseif result == "continue" then
             Game.continueGame()
+            swallowButtons()
         end
         return
     end
@@ -101,12 +113,14 @@ function pd.update()
         local ctl = Hero.ctl
         local fly = DEBUG and Hero.debugFly
         local pressed = fly and pd.buttonJustPressed or pd.buttonIsPressed
+        swallowA = swallowA and pd.buttonIsPressed(pd.kButtonA)
+        swallowB = swallowB and pd.buttonIsPressed(pd.kButtonB)
         ctl.left = pressed(pd.kButtonLeft)
         ctl.right = pressed(pd.kButtonRight)
         ctl.up = pressed(pd.kButtonUp)
-            or (not fly and pd.buttonIsPressed(pd.kButtonB))
+            or (not fly and not swallowB and pd.buttonIsPressed(pd.kButtonB))
         ctl.down = pressed(pd.kButtonDown)
-        ctl.fire = pd.buttonIsPressed(pd.kButtonA)
+        ctl.fire = not swallowA and pd.buttonIsPressed(pd.kButtonA)
 
         -- update order matches em.py loop_run: current screen's actives,
         -- then the player (who may switch screens; the new screen's actives
